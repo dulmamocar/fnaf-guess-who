@@ -1,0 +1,354 @@
+:root {
+    --bg-dark: #0d0c11;
+    --bg-panel: #16141f;
+    --bg-card: #211e2e;
+    --accent: #a855f7;
+    --accent-red: #dc2626;
+    --blue: #38bdf8;
+    --gold: #facc15;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --border: #37304a;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    background-color: var(--bg-panel);
+    padding: 12px 24px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header h1 {
+    font-size: 1.35rem;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.top-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.mode-selector button, .lang-selector button {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 7px 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.mode-selector button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.lang-selector button.active-lang {
+    background: var(--gold);
+    color: #111;
+    border-color: var(--gold);
+}
+
+.game-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* PANEL IZQUIERDO */
+.control-panel {
+    width: 410px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.secret-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.secret-card.hidden {
+    display: none;
+}
+
+.secret-info {
+    margin: 10px 0;
+    min-height: 105px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.secret-info img {
+    width: 78px;
+    height: 78px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: #12101a;
+    padding: 4px;
+    border: 1px solid var(--border);
+}
+
+.answer-log {
+    margin-top: 10px;
+    max-height: 145px;
+    overflow-y: auto;
+    background: var(--bg-dark);
+    border-radius: 6px;
+    padding: 8px;
+    text-align: left;
+    font-size: 0.84rem;
+    border: 1px solid var(--border);
+}
+
+.log-entry {
+    padding: 4px 0;
+    border-bottom: 1px solid #232030;
+}
+
+.log-yes { color: #4ade80; font-weight: bold; }
+.log-no { color: #f87171; font-weight: bold; }
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h2 {
+    font-size: 1.05rem;
+}
+
+.help-text {
+    font-size: 0.79rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+.btn-primary { background: var(--accent); color: #fff; width: 100%; }
+.btn-primary:hover { background: #9333ea; }
+.btn-secondary { background: #10b981; color: #052e16; width: 100%; margin-top: 6px; }
+.btn-danger { background: var(--accent-red); color: white; font-size: 0.8rem; padding: 5px 10px; }
+
+details {
+    background: var(--bg-card);
+    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+}
+
+summary {
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+    color: #e9d5ff;
+}
+
+.filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.filter-btn {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    font-size: 0.76rem;
+    padding: 6px 8px;
+    transition: 0.15s;
+    text-align: left;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+}
+
+.filter-btn.eliminated {
+    background: #450a0a;
+    color: #fca5a5;
+    border-color: #ef4444;
+    text-decoration: line-through;
+}
+
+.filter-btn.asked-yes {
+    background: #14532d;
+    border-color: #22c55e;
+    color: #bbf7d0;
+}
+
+.filter-btn.asked-no {
+    background: #450a0a;
+    border-color: #ef4444;
+    color: #fecaca;
+}
+
+/* TABLERO DERECHO */
+.board-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow: hidden;
+}
+
+.board-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+#search-character {
+    flex: 1;
+    max-width: 380px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    color: white;
+}
+
+#counter-display {
+    font-weight: bold;
+    background: var(--bg-panel);
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: var(--gold);
+}
+
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(122px, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.char-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.12s, opacity 0.2s, border-color 0.2s;
+    position: relative;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.char-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+
+.char-card img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    background: #13111c;
+    border-radius: 6px;
+    padding: 3px;
+}
+
+.char-card .char-num {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.char-card .char-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 5px 0 4px;
+    line-height: 1.15;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.char-badges {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.badge {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* ESTADO TACHADO */
+.char-card.eliminated {
+    opacity: 0.22;
+    filter: grayscale(100%);
+    border-color: #ef4444;
+}
+
+.char-card.eliminated::after {
+    content: "✖";
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3.1rem;
+    color: #ef4444;
+    font-weight: 900;
+    text-shadow: 0 0 8px #000;
+    pointer-events: none;
+}

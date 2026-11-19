@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <title>¿Quién es quién? - Edición FNAF (160 Personajes)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>🐻 ¿Quién es quién? — FNAF Edition</h1>
+        <div class="top-controls">
+            <div class="mode-selector">
+                <button id="btn-mode-pvp" class="active">Modo 2 Jugadores (Tablero)</button>
+                <button id="btn-mode-cpu">Modo Contra la Máquina</button>
+            </div>
+            <div id="lang-switch-box" class="lang-selector">
+                <button id="btn-lang-es" type="button" class="active-lang">ES</button>
+                <button id="btn-lang-en" type="button">EN</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="game-container">
+        <!-- PANEL IZQUIERDO: Filtros y Preguntas -->
+        <aside class="control-panel">
+            <!-- Sección Tu Personaje (Solo visible en PvP) -->
+            <div id="pvp-secret-box" class="secret-card">
+                <h3 id="lbl-secret-title">Tu Personaje Secreto</h3>
+                <div id="secret-character-display" class="secret-info">
+                    <p id="lbl-secret-placeholder">Pulsa el botón para asignarte uno</p>
+                </div>
+                <button id="btn-randomize-secret" class="btn-primary">🎲 Randomizar mi Personaje</button>
+            </div>
+
+            <!-- Sección Contra la Máquina (Solo visible en CPU) -->
+            <div id="cpu-box" class="secret-card hidden">
+                <h3 id="lbl-cpu-title">🤖 VS Máquina (Animatrónico CPU)</h3>
+                <p id="lbl-cpu-desc">La máquina ha elegido un personaje oculto al azar. Haz preguntas para deducirlo y descartar en el tablero.</p>
+                <button id="btn-new-cpu" class="btn-secondary">🔄 Nueva Partida CPU</button>
+                <div id="cpu-answer-log" class="answer-log">
+                    <p class="log-placeholder">Aquí aparecerán las respuestas de la máquina...</p>
+                </div>
+            </div>
+
+            <div class="panel-header">
+                <h2 id="lbl-panel-title">Panel de Preguntas / Filtros</h2>
+                <button id="btn-reset-filters" class="btn-danger">Limpiar Todo</button>
+            </div>
+            <p class="help-text" id="lbl-help-text">
+                <strong>Modo Tablero:</strong> Haz clic en las opciones que quieras <b>DESCARTAR (tachar)</b>.<br>
+                <strong>Modo CPU:</strong> Haz clic en las preguntas para consultar a la máquina (se tachará automáticamente lo que no coincida).
+            </p>
+
+            <!-- 1. JUEGO DE DEBUT -->
+            <details open>
+                <summary data-i18n="catGames">1. Juego de Debut (Línea Principal)</summary>
+                <div class="filter-group" id="filter-games"></div>
+            </details>
+
+            <!-- 2. FAMILIA / VARIANTE PRINCIPAL -->
+            <details open>
+                <summary data-i18n="catFamily">2. Familia / Variante de Personaje</summary>
+                <div class="filter-group" id="filter-families"></div>
+            </details>
+
+            <!-- 3. LÍNEA / SUBTIPO DE ANIMATRÓNICO -->
+            <details open>
+                <summary data-i18n="catLine">3. Línea / Modelo (Withered, Toy, Rockstar...)</summary>
+                <div class="filter-group" id="filter-lines"></div>
+            </details>
+
+            <!-- 4. NATURALEZA Y GÉNERO -->
+            <details open>
+                <summary data-i18n="catNature">4. Naturaleza y Especie</summary>
+                <div class="filter-group" id="filter-nature"></div>
+            </details>
+
+            <!-- 5. PREGUNTAS ESPECÍFICAS Y ACCESORIOS -->
+            <details open>
+                <summary data-i18n="catTraits">5. Rasgos Específicos y Accesorios</summary>
+                <div class="filter-group" id="filter-traits"></div>
+            </details>
+        </aside>
+
+        <!-- PANEL DERECHO: Tablero de Personajes -->
+        <section class="board-section">
+            <div class="board-toolbar">
+                <input type="text" id="search-character" placeholder="Buscar personaje por nombre o juego...">
+                <span id="counter-display">Restantes: 160 / 160</span>
+            </div>
+            <div id="character-grid" class="character-grid"></div>
+        </section>
+    </main>
+
+    <!-- Scripts separados -->
+    <script src="fnaf_data.js"></script>
+    <script src="i18n_en.js"></script>
+    <script src="app.js"></script>
+    <script src="cpu_mode.js"></script>
+    <script src="en_mode.js"></script>
+</body>
+</html>
