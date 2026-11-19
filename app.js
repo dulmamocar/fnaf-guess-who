@@ -11,21 +11,23 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     renderBoard();
     if (typeof initCpuMode === "function") initCpuMode();
-    
-
-    // Carga y actualiza las imágenes oficiales de cada personaje en el tablero
-    fetchOfficialFnafImages(ALL_CHARACTERS, () => {
-        renderBoard();
-        if (currentSecretChar) renderSecretCard();
-        });
 });
 
 function getCharName(char) {
     return currentLang === "en" ? char.nameEn : char.nameEs;
 }
 
+function handleSpriteError(imgEl) {
+    if (!imgEl.dataset.triedProxy && imgEl.dataset.proxy) {
+        imgEl.dataset.triedProxy = "1";
+        imgEl.src = imgEl.dataset.proxy;
+    } else if (imgEl.dataset.fallback) {
+        imgEl.onerror = null;
+        imgEl.src = imgEl.dataset.fallback;
+    }
+}
+
 function renderFilterButtons() {
-    // 1. Juegos de debut
     const gamesContainer = document.getElementById("filter-games");
     gamesContainer.innerHTML = "";
     Object.entries(FNAF_GAMES).forEach(([key, info]) => {
@@ -40,16 +42,9 @@ function renderFilterButtons() {
         gamesContainer.appendChild(btn);
     });
 
-    // 2. Familias / Variantes
     populateGroup("filter-families", "family", QUESTION_DEFS.families);
-
-    // 3. Líneas / Modelos
     populateGroup("filter-lines", "line", QUESTION_DEFS.lines);
-
-    // 4. Naturaleza y Género
     populateGroup("filter-nature", "nature", QUESTION_DEFS.nature);
-
-    // 5. Rasgos Específicos
     populateGroup("filter-traits", "trait", QUESTION_DEFS.traits);
 }
 
@@ -72,14 +67,12 @@ function setupEventListeners() {
     document.getElementById("btn-mode-pvp").addEventListener("click", () => switchMode("pvp"));
     document.getElementById("btn-mode-cpu").addEventListener("click", () => switchMode("cpu"));
 
-    // Botón para asignarte tu personaje secreto en PvP
     document.getElementById("btn-randomize-secret").addEventListener("click", () => {
         if (ALL_CHARACTERS.length === 0) return;
         currentSecretChar = ALL_CHARACTERS[Math.floor(Math.random() * ALL_CHARACTERS.length)];
         renderSecretCard();
     });
 
-    // Limpiar filtros y tachados
     document.getElementById("btn-reset-filters").addEventListener("click", () => {
         manualEliminated.clear();
         eliminatedFilters = [];
@@ -90,10 +83,8 @@ function setupEventListeners() {
         renderBoard();
     });
 
-    // Buscador por nombre o juego
     document.getElementById("search-character").addEventListener("input", () => renderBoard());
 
-    // Clics en botones de preguntas/filtros
     document.querySelector(".control-panel").addEventListener("click", (e) => {
         if (!e.target.classList.contains("filter-btn")) return;
         const btn = e.target;
@@ -119,9 +110,15 @@ function setupEventListeners() {
 function renderSecretCard() {
     if (!currentSecretChar) return;
     const gameLabel = FNAF_GAMES[currentSecretChar.game][currentLang];
+    const displayName = getCharName(currentSecretChar);
+
     document.getElementById("secret-character-display").innerHTML = `
-        <img src="${currentSecretChar.sprite}" onerror="this.onerror=null;this.src='${currentSecretChar.fallbackSprite}'" alt="${getCharName(currentSecretChar)}">
-        <strong>#${currentSecretChar.id} ${getCharName(currentSecretChar)}</strong>
+        <img src="${currentSecretChar.sprite}"
+             data-proxy="${currentSecretChar.proxySprite}"
+             data-fallback="${currentSecretChar.fallbackSprite}"
+             onerror="handleSpriteError(this)"
+             alt="${displayName}">
+        <strong>#${currentSecretChar.id} ${displayName}</strong>
         <small>${gameLabel}</small>
     `;
 }
@@ -135,13 +132,11 @@ function switchMode(mode) {
     document.getElementById("btn-reset-filters").click();
 }
 
-// Evalúa si un personaje cumple una pregunta/condición
 function matchesCondition(char, category, value) {
     switch (category) {
         case "game":
             return char.game === value;
         case "family":
-            // Si preguntan por Endo, incluimos M2 (The Mimic de Ruin) además de los de familia endo
             if (value === "endo") return char.family === "endo" || char.id === 134;
             return char.family === value;
         case "line":
@@ -194,14 +189,17 @@ function renderBoard() {
         card.className = `char-card ${isEliminated ? "eliminated" : ""}`;
         card.innerHTML = `
             <div class="char-num">#${String(char.id).padStart(3, "0")}</div>
-            <img src="${char.sprite}" loading="lazy" onerror="this.onerror=null;this.src='${char.fallbackSprite}'" alt="${displayName}">
+            <img src="${char.sprite}" loading="lazy"
+                 data-proxy="${char.proxySprite}"
+                 data-fallback="${char.fallbackSprite}"
+                 onerror="handleSpriteError(this)"
+                 alt="${displayName}">
             <div class="char-name" title="${displayName}">${displayName}</div>
             <div class="char-badges">
                 <span class="badge" style="background:${gameInfo.color}">${gameName}</span>
             </div>
         `;
 
-        // Clic para tachar/destachar o arriesgar en modo CPU
         card.addEventListener("click", () => {
             if (currentMode === "cpu" && !isEliminated && remainingCount <= 6) {
                 const confirmMsg = currentLang === "en"

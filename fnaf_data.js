@@ -252,88 +252,60 @@ const RAW_FNAF_CHARACTERS = [
     [160, "Springlock Fredbear (SOTM)", "Springlock Fredbear (SOTM)", "sotm", "golden", "springlock", "animatronic", "male", ["hat", "bowtie", "jumpscare"], "Fredbear_UCN.png"]
 ];
 
-// Genera un avatar SVG de respaldo elegante con el color del juego e iniciales
-function buildFallbackSvg(name, bgColor) {
-    const initials = name
+// Genera un icono SVG personalizado según familia/naturaleza/color de juego
+function buildCharacterIconSvg(char, bgColor) {
+    const initials = char.nameEn
         .replace(/\(.*?\)/g, "")
         .trim()
         .split(/\s+/)
         .slice(0, 2)
         .map(w => w[0] ? w[0].toUpperCase() : "")
         .join("");
+
+    let symbol = "★";
+    if (char.nature === "human") symbol = "👤";
+    else if (char.nature === "spirit") symbol = "👻";
+    else if (char.nature === "entity") symbol = "👁";
+    else if (char.family === "freddy" || char.family === "golden") symbol = "🐻";
+    else if (char.family === "bonnie" || char.family === "springtrap") symbol = "🐇";
+    else if (char.family === "chica") symbol = "🐥";
+    else if (char.family === "foxy") symbol = "🦊";
+    else if (char.family === "puppet") symbol = "🎭";
+    else if (char.family === "endo" || char.family === "mimic") symbol = "⚙";
+    else symbol = "🤖";
+
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
-        <rect width="120" height="120" rx="14" fill="${bgColor}"/>
-        <circle cx="60" cy="48" r="24" fill="rgba(255,255,255,0.16)"/>
-        <text x="60" y="56" font-family="Segoe UI, sans-serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">${initials}</text>
-        <text x="60" y="96" font-family="Segoe UI, sans-serif" font-size="11" fill="#e5e7eb" text-anchor="middle">FNAF</text>
+        <rect width="120" height="120" rx="16" fill="${bgColor}"/>
+        <rect x="6" y="6" width="108" height="108" rx="12" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="2"/>
+        <text x="60" y="54" font-size="34" text-anchor="middle" dominant-baseline="middle">${symbol}</text>
+        <text x="60" y="92" font-family="Segoe UI, sans-serif" font-size="16" font-weight="800" fill="#ffffff" text-anchor="middle">${initials}</text>
     </svg>`;
     return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
 }
 
-// Construye la lista final de 160 personajes con URLs oficiales de la Wiki de FNAF
+// Construye la lista final de 160 personajes con URL oficial de la Wiki y su icono de respaldo
 function loadAllFnafCharacters() {
     return RAW_FNAF_CHARACTERS.map(([id, nameEs, nameEn, game, family, line, nature, gender, traits, file]) => {
         const gameColor = FNAF_GAMES[game] ? FNAF_GAMES[game].color : "#37304a";
-        // Ruta oficial de redirección de archivo de MediaWiki (Fandom FNAF Wiki)
-        const officialImgUrl = `https://freddy-fazbears-pizza.fandom.com/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+        const officialUrl = `https://freddy-fazbears-pizza.fandom.com/wiki/Special:FilePath/${encodeURIComponent(file)}?width=160`;
+        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(`https://freddy-fazbears-pizza.fandom.com/wiki/Special:FilePath/${encodeURIComponent(file)}`)}&w=160&h=160&fit=contain`;
 
-        return {
+        const baseChar = {
             id,
             nameEs,
             nameEn,
+            fileName: file,
             game,
             family,
             line,
             nature,
             gender,
             traits: new Set(traits),
-            sprite: officialImgUrl,
-            fallbackSprite: buildFallbackSvg(nameEn, gameColor)
+            sprite: officialUrl,
+            proxySprite: proxyUrl,
+            fallbackSprite: ""
         };
+        baseChar.fallbackSprite = buildCharacterIconSvg(baseChar, gameColor);
+        return baseChar;
     });
-}
-
-// Consulta la API de Fandom Wiki en lotes para obtener las URLs directas de static.wikia.nocookie.net
-async function fetchOfficialFnafImages(characters, onBatchLoaded) {
-    const batchSize = 40;
-    for (let i = 0; i < characters.length; i += batchSize) {
-        const batch = characters.slice(i, i + batchSize);
-        const titles = batch.map(c => c.wikiTitle).join("|");
-        const apiUrl = `https://freddy-fazbears-pizza.fandom.com/api.php?action=query&titles=${encodeURIComponent(titles)}&prop=pageimages&pithumbsize=160&redirects=1&format=json&origin=*`;
-
-        try {
-            const res = await fetch(apiUrl);
-            const data = await res.json();
-            if (!data.query || !data.query.pages) continue;
-
-            const redirects = {};
-            (data.query.redirects || []).forEach(r => { redirects[r.from] = r.to; });
-            const normalized = {};
-            (data.query.normalized || []).forEach(n => { normalized[n.from] = n.to; });
-
-            const pageThumbMap = {};
-            Object.values(data.query.pages).forEach(page => {
-                if (page.thumbnail && page.thumbnail.source) {
-                    pageThumbMap[page.title.toLowerCase()] = page.thumbnail.source;
-                }
-            });
-
-            let updated = false;
-            batch.forEach(char => {
-                let title = normalized[char.wikiTitle] || char.wikiTitle;
-                title = redirects[title] || title;
-                const foundUrl = pageThumbMap[title.toLowerCase()];
-                if (foundUrl) {
-                    char.sprite = foundUrl;
-                    updated = true;
-                }
-            });
-
-            if (updated && typeof onBatchLoaded === "function") {
-                onBatchLoaded();
-            }
-        } catch (e) {
-            console.warn("No se pudo cargar lote de imágenes desde la Wiki:", e);
-        }
-    }
 }
